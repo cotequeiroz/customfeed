@@ -1,0 +1,19 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2014 Noah Meyerhans <frodo@morgul.net>
+# Licensed under the terms of the GNU General Public License version 2
+# or (at your discretion) any later later version
+
+USE_PROCD=1
+
+START=80
+
+config_file=/etc/mrtg/daemon.cfg
+log_file=/var/log/mrtg.log
+pid_file=/var/run/mrtg.pid
+
+start_service() {
+    procd_open_instance
+    procd_set_param command /usr/bin/mrtg --pid-file=$pid_file --logging $log_file $config_file
+    procd_set_param respawn
+    procd_close_instance
+}

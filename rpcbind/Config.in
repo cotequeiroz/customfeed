@@ -1,0 +1,12 @@
+if PACKAGE_rpcbind
+
+config RPCBIND_ENABLE_LIBWRAP
+	bool
+	default y
+	prompt "Enable libwrap acces control"
+	help
+		When a connection attempt is made to the RPCBind
+		service, the the host's access files (/etc/hosts.allow
+		and /etc/hosts.deny) to determine whether or not the
+		client is allowed to connect.
+endif

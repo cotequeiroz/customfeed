@@ -1,0 +1,10 @@
+--- a/Socket6.pm
++++ b/Socket6.pm
+@@ -289,6 +289,7 @@ sub sockaddr_in6 {
+ sub AUTOLOAD {
+     my($constname);
+     ($constname = $AUTOLOAD) =~ s/.*:://o;
++    croak "& not defined" if $constname eq 'constant';
+     $! = 0;
+     my $val = constant($constname, @_ ? $_[0] : 0);
+     if ($! != 0) {
