@@ -2,7 +2,7 @@ if PACKAGE_rpcbind
 
 config RPCBIND_ENABLE_LIBWRAP
 	bool
-	default y
+	default n
 	prompt "Enable libwrap acces control"
 	help
 		When a connection attempt is made to the RPCBind
