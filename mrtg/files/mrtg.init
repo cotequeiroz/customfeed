@@ -8,6 +8,7 @@ USE_PROCD=1
 START=80
 
 config_file=/etc/mrtg/daemon.cfg
+lock_file=/var/lock/mrtg_daemon.cfg_l
 log_file=/var/log/mrtg.log
 pid_file=/var/run/mrtg.pid
 
