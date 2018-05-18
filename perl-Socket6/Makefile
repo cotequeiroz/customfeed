@@ -15,8 +15,9 @@ PKG_SOURCE_URL:=http://www.cpan.org/authors/id/U/UM/UMEMOTO
 PKG_SOURCE:=Socket6-$(PKG_VERSION).tar.gz
 PKG_HASH:=bfd49ab99f3197c99285fed4683c4edc06277c1e4453f593e694d7bff0974586
 
-PKG_LICENSE:=BSD
-PKG_MAINTAINER:=Hajimu UMEMOTO <ume@mahoroba.org>
+PKG_LICENSE:=BSD-2-Clause
+PKG_LICENSE_FILES:=README
+PKG_MAINTAINER:=Eneas U de Queiroz <cote2004-github@yahoo.com>
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/perl/Socket6-$(PKG_VERSION)
 
