@@ -17,7 +17,7 @@ PKG_HASH:=bfd49ab99f3197c99285fed4683c4edc06277c1e4453f593e694d7bff0974586
 
 PKG_LICENSE:=BSD-2-Clause
 PKG_LICENSE_FILES:=README
-PKG_MAINTAINER:=Eneas U de Queiroz <cote2004-github@yahoo.com>
+PKG_MAINTAINER:=Eneas U de Queiroz <cotequeiroz@gmail.com>
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/perl/Socket6-$(PKG_VERSION)
 

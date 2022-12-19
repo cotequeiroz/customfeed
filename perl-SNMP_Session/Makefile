@@ -15,7 +15,7 @@ PKG_SOURCE_URL:=https://dev.gentoo.org/~dilfridge/distfiles/
 PKG_SOURCE:=SNMP_Session-$(PKG_VERSION).tar.gz
 PKG_HASH:=a1c6cf5a8893447ab5a6dc38d5bb04b5d492acabb1f282559f9d76b61272ab5f
 
-PKG_MAINTAINER:=Eneas U de Queiroz <cote2004-github@yahoo.com>
+PKG_MAINTAINER:=Eneas U de Queiroz <cotequeiroz@gmail.com>
 PKG_LICENSE:=Artistic-2
 PKG_LICENSE_FILES:=Artistic
 

@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=kmod-mwlwifi-thaw-clients
 PKG_RELEASE:=1
 
-PKG_MAINTAINER:=Eneas U de Queiroz <cote2004-github@yahoo.com>
+PKG_MAINTAINER:=Eneas U de Queiroz <cotequeiroz@gmail.com>
 PKG_LICENSE:=GPL-2-or-later
 
 include $(INCLUDE_DIR)/package.mk
