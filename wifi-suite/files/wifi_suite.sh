@@ -1,12 +1,4 @@
 #!/bin/sh
-#
-# Copyright (C) 2023-2024 Eneas U de Queiroz
-#
-# SPDX-License-Identifiere: GPL-2.0-or-later
-# See the feed toplevel /LICENSE for more information.
-#
-# Based on a script created in 2023 by Hannu Nyman
-#
 
 ansi() {
   printf "\033[%sm" "$1"
@@ -46,7 +38,7 @@ for socket in *; do
       signal="${RED}${signal}"
     fi
     signal="${signal}dBm${RESET}"
-    echo "$flags" | grep -q '\[MFP]' && mfp="${BRIGHT_GREEN}[MFP]${RESET}"
+    echo "$flags" | grep -q '\[MFP]' || mfp="${BRIGHT_RED}[no-MFP]${RESET}"
     if echo "$flags" | grep -q '\[HE]'; then
       mode="${BRIGHT_GREEN}Wi-Fi 6${RESET}"
     elif echo "$flags" | grep -q '\[VHT]'; then
@@ -61,9 +53,9 @@ for socket in *; do
       mode="${BRIGHT_RED}802.11g${RESET}"
     fi
     case "$suite" in
-        00-0f-ac-1) if [ -n "$mfp" ]; then akm="${GREEN}"; else akm=; fi; akm="${akm}802.1x"  ;;
+        00-0f-ac-1) if [ -z "$mfp" ]; then akm="${GREEN}"; else akm=; fi; akm="${akm}802.1x"  ;;
         00-0f-ac-2) akm="${YELLOW}WPA-PSK"  ;;
-        00-0f-ac-3) if [ -n "$mfp" ]; then akm="${BRIGHT_GREEN}"; else akm="${GREEN}"; fi; akm="${akm}FT-802.1x"  ;;
+        00-0f-ac-3) if [ -z "$mfp" ]; then akm="${BRIGHT_GREEN}"; else akm="${GREEN}"; fi; akm="${akm}FT-802.1x"  ;;
         00-0f-ac-4) akm="${GREEN}WPA-PSK-FT"  ;;
         00-0f-ac-5) akm="${GREEN}802.1x-SHA256"  ;;
         00-0f-ac-6) akm=WPA-PSK-SHA256  ;;
