@@ -100,7 +100,7 @@ DEFAULT_IFS="$IFS"
 for socket in *; do
   [ -S "$socket" ] || continue
   [ "$socket" = "global" ] && continue
-  hw_mode=$(hostapd_cli -i "$socket" status | grep "^hw_mode=" | cut -f 2 -d"=")
+  hw_mode=$(hostapd_cli -i "$socket" status | grep "^hw_mode=" | cut -f 2 -d"=") || continue
   for assoc in $(hostapd_cli -i "$socket" list_sta); do
     signal="$GREY ? "
     mode="${GREY}unknown${RESET}"
