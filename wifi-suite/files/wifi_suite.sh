@@ -43,18 +43,17 @@ parse_flags() {
 
 get_curve() {
   case "$1" in
-	"") sae_group="-${GREY}undef"  ;;
-	19) sae_group="-${GREEN}p256-SHA256"  ;;
-	20) sae_group="-${BRIGHT_GREEN}p384-SHA386"  ;;
-	21) sae_group="-${BRIGHT_GREEN}p521-SHA512"  ;;
-	25) sae_group="-${BRIGHT_RED}p192-SHA256"  ;;
-	26) sae_group="-${YELLOW}p224-SHA256"  ;;
-	28) sae_group="-${GREEN}Bp256-SHA256"  ;;
-	29) sae_group="-${BRIGHT_GREEN}Bp384-SHA384"  ;;
-	30) sae_group="-${BRIGHT_GREEN}Bp512-SHA512"  ;;
-	*)  sae_group="-${GREY}group=$sae_group" ;;
+	"") sae_group="-${GREY}undef" sae_hash=  ;;
+	19) sae_group=-p256 sae_hash=-SHA256  ;;
+	20) sae_group=-p384 sae_hash=-SHA384  ;;
+	21) sae_group=-p521 sae_hash=-SHA512  ;;
+	25) sae_group="-${BRIGHT_RED}p192" sae_hash=-SHA256  ;;
+	26) sae_group="-${YELLOW}p224" sae_hash=-SHA256  ;;
+	28) sae_group=-Bp256 sae_hash=-SHA256  ;;
+	29) sae_group=-Bp384 sae_hash=-SHA384  ;;
+	30) sae_group=-Bp512 sae_hash=-SHA512  ;;
+	*)  sae_group="-${GREY}group=$sae_group" sae_hash= ;;
   esac
-  sae_group="${sae_group}${RESET}"
 }
 
 get_akm() {
@@ -67,8 +66,8 @@ get_akm() {
 	00-0f-ac-5) akm="${GREEN}802.1x-SHA256"  ;;
 	00-0f-ac-6) akm=PSK-SHA256  ;;
 	00-0f-ac-7) akm=TDLS-SHA256  ;;
-	00-0f-ac-8) akm="${GREEN}SAE${sae_group}" ;;
-	00-0f-ac-9) akm="${BRIGHT_GREEN}FT-SAE${sae_group}"  ;;
+	00-0f-ac-8) akm="${GREEN}SAE${sae_group}-SHA256" ;;
+	00-0f-ac-9) akm="${BRIGHT_GREEN}FT-SAE${sae_group}-SHA256"  ;;
 	00-0f-ac-10) akm=APPeerKey-SHA256  ;;
 	00-0f-ac-11) akm=802.1x-suite-B-SHA256  ;;
 	00-0f-ac-12) akm="${GREEN}802.1x-suite-B-192-SHA384"  ;;
@@ -80,6 +79,8 @@ get_akm() {
 	00-0f-ac-18) akm="${GREEN}OWE"  ;;
 	00-0f-ac-19) akm="${GREEN}FT-PSK-SHA384"  ;;
 	00-0f-ac-20) akm=PSK-SHA384  ;;
+	00-0f-ac-24) akm="${GREEN}SAE${sae_group}${sae_hash}" ;;
+	00-0f-ac-25) akm="${BRIGHT_GREEN}FT-SAE${sae_group}${sae_hash}"  ;;
 	*)	     akm="${GREY}AKM:$1"  ;;
   esac
   akm="${akm}${RESET}"
