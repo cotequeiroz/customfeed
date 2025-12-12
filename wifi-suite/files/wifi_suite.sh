@@ -1,5 +1,5 @@
 #!/bin/sh
-# shellcheck disable=SC3060,SC3001
+# shellcheck disable=SC3060,SC3001,SC3028
 
 ansi() {
   printf "\033[%sm" "$1"
@@ -12,6 +12,8 @@ YELLOW=$(ansi 93)
 GREEN=$(ansi 32)
 BRIGHT_GREEN=$(ansi 92)
 GREY=$(ansi 90)
+LEASEFILE=$(uci get dhcp.@dnsmasq[0].leasefile 2>/dev/null)
+LEASEFILE="${LEASEFILE:-/tmp/dhcp.leases}"
 
 parse_flags() {
   flags=
@@ -44,14 +46,38 @@ parse_flags() {
 get_curve() {
   case "$1" in
 	"") sae_group="-${GREY}undef" sae_hash=  ;;
-	19) sae_group=-p256 sae_hash=-SHA256  ;;
-	20) sae_group=-p384 sae_hash=-SHA384  ;;
-	21) sae_group=-p521 sae_hash=-SHA512  ;;
-	25) sae_group="-${BRIGHT_RED}p192" sae_hash=-SHA256  ;;
-	26) sae_group="-${YELLOW}p224" sae_hash=-SHA256  ;;
-	28) sae_group=-Bp256 sae_hash=-SHA256  ;;
-	29) sae_group=-Bp384 sae_hash=-SHA384  ;;
-	30) sae_group=-Bp512 sae_hash=-SHA512  ;;
+	 1) sae_group="-${GREY}FF768" sae_hash=-SHA256  ;;
+	 2) sae_group="-${GREY}FF1024" sae_hash=-SHA256  ;;
+	 3) sae_group="-${GREY}EC2N-155" sae_hash=-SHA256  ;;
+	 4) sae_group="-${GREY}EC2N-185" sae_hash=-SHA256  ;;
+	 5) sae_group="-${RED}FF1536" sae_hash=-SHA256  ;;
+	 6) sae_group="-${RED}sect163r1" sae_hash=-SHA256  ;;
+	 7) sae_group="-${RED}K163" sae_hash=-SHA256  ;;
+	 8) sae_group="-${BRIGHT_RED}B283" sae_hash=-SHA384  ;;
+	 9) sae_group="-${BRIGHT_RED}K283" sae_hash=-SHA384  ;;
+	10) sae_group="-${BRIGHT_RED}B409" sae_hash=-SHA512  ;;
+	11) sae_group="-${BRIGHT_RED}K409" sae_hash=-SHA512  ;;
+	12) sae_group="-${BRIGHT_RED}B571" sae_hash=-SHA512  ;;
+	13) sae_group="-${BRIGHT_RED}K571" sae_hash=-SHA512  ;;
+	14) sae_group="-${BRIGHT_RED}FF2048" sae_hash=-SHA256  ;;
+	15) sae_group=-FF3072 sae_hash=-SHA384  ;;
+	16) sae_group=-FF4096 sae_hash=-SHA512  ;;
+	17) sae_group=-FF6144 sae_hash=-SHA512  ;;
+	18) sae_group=-FF8192 sae_hash=-SHA512  ;;
+	19) sae_group=-P256 sae_hash=-SHA256  ;;
+	20) sae_group=-P384 sae_hash=-SHA384  ;;
+	21) sae_group=-P521 sae_hash=-SHA512  ;;
+	22) sae_group="-${GREY}FF1024q160" sae_hash=-SHA256  ;;
+	23) sae_group="-${RED}FF2048q224" sae_hash=-SHA256  ;;
+	24) sae_group="-${RED}FF2048q256" sae_hash=-SHA256  ;;
+	25) sae_group="-${BRIGHT_RED}P192" sae_hash=-SHA256  ;;
+	26) sae_group="-${BRIGHT_RED}P224" sae_hash=-SHA256  ;;
+	27) sae_group="-${BRIGHT_RED}BP224" sae_hash=-SHA256  ;;
+	28) sae_group="-${YELLOW}BP256" sae_hash=-SHA256  ;;
+	29) sae_group="-${YELLOW}BP384" sae_hash=-SHA384  ;;
+	30) sae_group="-${YELLOW}BP512" sae_hash=-SHA512  ;;
+	31) sae_group=-X25519 sae_hash=-SHA256  ;;
+	32) sae_group=-X448 sae_hash=-SHA512  ;;
 	*)  sae_group="-${GREY}group=$sae_group" sae_hash= ;;
   esac
 }
@@ -108,20 +134,20 @@ get_pairwise() {
 }
 
 get_signal() {
-      if [ $(($1)) -ge 0 ]; then
-	return
-      elif [ "$1" -ge -50 ]; then
-	signal="${BRIGHT_GREEN}"
-      elif [ "$1" -ge -67 ]; then
-	signal=
-      elif [ "$1" -gt -80 ]; then
-	signal="${YELLOW}"
-      elif [ "$1" -gt -90 ]; then
-	signal="${BRIGHT_RED}"
-      else
-	signal="${RED}"
-      fi
-      signal="${signal}$1"
+  if [ $(($1)) -ge 0 ]; then
+    return
+  elif [ "$1" -ge -50 ]; then
+    color="${BRIGHT_GREEN}"
+  elif [ "$1" -ge -67 ]; then
+    color=
+  elif [ "$1" -gt -80 ]; then
+    color="${YELLOW}"
+  elif [ "$1" -gt -90 ]; then
+    color="${BRIGHT_RED}"
+  else
+    color="${RED}"
+  fi
+  echo "${color}$1dBm${color:+${RESET}}"
 }
 
 get_eap_type() {
@@ -141,45 +167,79 @@ get_eap_type() {
   eap_type="-${color}EAP-${eap_type}${color:+$RESET}"
 }
 
+print_assoc() {
+  if [ -z "$last_ack_signal" ]; then
+    signal="${signal:-${GREY} ? ${RESET}}"
+  else
+    signal="${signal}(${last_ack_signal})"
+  fi
+  get_akm "$akm_int"
+  get_pairwise "$pairwise_int"
+  [ -z "$identity" ] && \
+    identity=$(sed -n -e "/$assoc.*# /{s/.*# //;p;q}" /etc/config/wireless)
+  [ -z "$identity" ] && \
+    identity=$(sed -n -e "/ $assoc /{s/.* $assoc [^ ]\\+ \\([^ ]\\+\\).*/\\1/;p;q}" \
+		   "${LEASEFILE:-/tmp/dhcp.leases}")
+  printf "%-8s: %s %s%s %s %s%s/%s%s %s\n" \
+	 "$socket" "$assoc" "$signal" "$inactive_sec" "$mode" "$akm" "$eap_type" \
+	 "$pairwise" "$flags" "$identity"
+}
+
 cd /var/run/hostapd || exit 2
-# shellcheck disable=SC3028
+IFS=
 echo "${HOSTNAME}: Associated wifi stations:"
-DEFAULT_IFS="$IFS"
 for socket in *; do
   [ -S "$socket" ] || continue
   [ "$socket" = "global" ] && continue
   hw_mode=$(hostapd_cli -i "$socket" status | grep "^hw_mode=" | cut -f 2 -d"=") || continue
-  for assoc in $(hostapd_cli -i "$socket" list_sta); do
-    signal="$GREY ? "
-    mode="${GREY}unknown${RESET}"
-    akm_int=
-    akm="${GREY}undef${RESET}"
-    pairwise_int=
-    pairwise="${GREY}undef${RESET}"
-    identity=
-    eap_type=
-    flags=
-    sae_group=
-    IFS=
-    while read -r line; do
-      val="${line##*=}"
-      case "${line%%=*}" in
-	  AKMSuiteSelector)			akm_int="${val}"	;;
-	  flags)				parse_flags "${val}"	;;
-	  signal)				get_signal "${val}"	;;
-	  dot1xAuthSessionUserName)		identity="${val}"	;;
-	  dot11RSNAStatsSelectedPairwiseCipher)	pairwise_int="${val}"	;;
-	  last_eap_type_as)			get_eap_type "${val}"	;;
-	  sae_group)				get_curve "${val}"	;;
-      esac
-    done < <(hostapd_cli -i "$socket" sta "$assoc")
-    IFS="$DEFAULT_IFS"
-    signal="${signal}dBm${RESET}"
-    get_akm "$akm_int"
-    get_pairwise "$pairwise_int"
-    [ -z "$identity" ] && identity=$(sed -n -e "/$assoc.*# /{s/.*# //;p;q}" /etc/config/wireless)
-    [ -z "$identity" ] && identity=$(grep "$assoc" /tmp/dhcp.leases 2>/dev/null | awk '{print $4}')
-    printf "%-8s: %s signal=%s %s %s%s/%s%s %s\n" \
-	   "$socket" "$assoc" "$signal" "$mode" "$akm" "$eap_type" "$pairwise" "$flags" "$identity"
-  done
+  assoc=
+  while read -r line; do
+    val="${line##*=}"
+    case "${line%%=*}" in
+	??:??:??:??:??:??)			
+		[ -n "$assoc" ] && print_assoc
+		akm="${GREY}undef${RESET}"
+		akm_int=
+		assoc="${line}"
+		eap_type=
+		flags=
+		identity=
+		inactive_sec=
+		last_ack_signal=
+		mode="${GREY}unknown${RESET}"
+		pairwise="${GREY}undef${RESET}"
+		pairwise_int=
+		sae_group=
+		signal=
+		;;
+	AKMSuiteSelector)
+		akm_int="${val}"
+		;;
+	flags)
+		parse_flags "${val}"
+		;;
+	inactive_msec)
+		inactive_sec=" ($((val/1000))s)"
+		;;
+	last_ack_signal)
+		last_ack_signal=$(get_signal "${val}")
+		;;
+	signal)
+		signal=$(get_signal "${val}")
+		;;
+	dot1xAuthSessionUserName)
+		identity="${val}"
+		;;
+	dot11RSNAStatsSelectedPairwiseCipher)
+		pairwise_int="${val}"
+		;;
+	last_eap_type_as)
+		get_eap_type "${val}"
+		;;
+	sae_group)
+		get_curve "${val}"
+		;;
+    esac
+  done < <(hostapd_cli -i "$socket" all_sta)
+  [ -n "$assoc" ] && print_assoc
 done
