@@ -9,10 +9,10 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mrtg
 PKG_VERSION:=2.17.10
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://oss.oetiker.ch/mrtg/pub
+PKG_SOURCE_URL:=https://oss.oetiker.ch/mrtg/pub
 PKG_HASH:=c7f11cb5e217a500d87ee3b5d26c58a8652edbc0d3291688bb792b010fae43ac
 
 PKG_MAINTAINER:=Eneas U de Queiroz <cotequeiroz@gmail.com>
@@ -26,7 +26,7 @@ define Package/mrtg
   CATEGORY:=Network
   DEPENDS:=+perlbase-findbin +perlbase-getopt +perlbase-math +perlbase-pod +perl-SNMP_Session +perl-Socket6 +libgd
   TITLE:=A tool to monitor the traffic load on network-links
-  URL:=http://oss.oetiker.ch/mrtg/
+  URL:=https://oss.oetiker.ch/mrtg/
 endef
 
 define Package/mrtg/description
