@@ -128,6 +128,7 @@ get_pairwise() {
 	00-0f-ac-11) pairwise="${GREEN}BIP-GMAC-128"  ;;
 	00-0f-ac-12) pairwise="${BRIGHT_GREEN}BIP-GMAC-256"  ;;
 	00-0f-ac-13) pairwise="${GREEN}BIP-CMAC-256"  ;;
+	00-50-f2-4) pairwise="${BRIGHT_RED}TKIP"  ;;
 	*)	     pairwise="${GREY}Pairwise:$1"  ;;
   esac
   pairwise="${pairwise}${RESET}"

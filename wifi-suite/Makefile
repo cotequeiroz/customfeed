@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=wifi-suite
-PKG_VERSION:=4.0
+PKG_VERSION:=4.1
 PKG_RELEASE:=1
 PKG_LICENSE:=GPL-2.0-or-later
 
