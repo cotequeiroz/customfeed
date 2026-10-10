@@ -178,9 +178,9 @@ print_assoc() {
   get_pairwise "$pairwise_int"
   [ -z "$identity" ] && \
     identity=$(sed -n -e "/$assoc.*# /{s/.*# //;p;q}" /etc/config/wireless)
-  [ -z "$identity" ] && \
+  [ -z "$identity" ] && [ -f "$LEASEFILE" ] && \
     identity=$(sed -n -e "/ $assoc /{s/.* $assoc [^ ]\\+ \\([^ ]\\+\\).*/\\1/;p;q}" \
-		   "${LEASEFILE:-/tmp/dhcp.leases}")
+		   "${LEASEFILE}")
   printf "%-8s: %s %s%s %s %s%s/%s%s %s\n" \
 	 "$socket" "$assoc" "$signal" "$inactive_sec" "$mode" "$akm" "$eap_type" \
 	 "$pairwise" "$flags" "$identity"
